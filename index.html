@@ -593,13 +593,14 @@ meta.textContent = "المؤلف: " + book.author;
 
         const data = await response.json();
 
-        if (!response.ok) {
-          console.error(data);
-          alert("حدث خطأ في الاتصال بـ GPT. تحققي من المفتاح أو الاتصال بالإنترنت.");
-        } else {
-          const text = data.choices[0].message.content.trim();
-          summaryDiv.textContent = text;
-        }
+       if (!response.ok) {
+    console.error(data);
+    alert("فشل في الاتصال بالذكاء الاصطناعي. تأكدي من الإعدادات.");
+    return;
+} else {
+    const text = data.summary;
+    summaryDiv.textContent = text;
+}
       } catch (err) {
         console.error(err);
         alert("تعذّر الوصول إلى GPT. تأكدي من الاتصال بالإنترنت.");
@@ -612,5 +613,6 @@ meta.textContent = "المؤلف: " + book.author;
 </body>
 
 </html>
+
 
 
