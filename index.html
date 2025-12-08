@@ -556,10 +556,7 @@ meta.textContent = "المؤلف: " + book.author;
     }
 
     async function summarizeWithGPT(book, summaryDiv, buttonEl) {
-      if (!OPENAI_API_KEY) {
-        alert("ضعي مفتاح OpenAI في الكود أولاً عند السطر الذي يحتوي OPENAI_API_KEY.");
-        return;
-      }
+
 
       const originalText = buttonEl.textContent;
       buttonEl.textContent = "⏳ جاري توليد التلخيص...";
@@ -578,11 +575,10 @@ meta.textContent = "المؤلف: " + book.author;
       `.trim();
 
       try {
-        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        const response = await fetch("/api/summerize", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": "Bearer " + OPENAI_API_KEY,
           },
           body: JSON.stringify({
             model: "gpt-4.1-mini",
@@ -614,4 +610,5 @@ meta.textContent = "المؤلف: " + book.author;
     }
   </script>
 </body>
+
 </html>
