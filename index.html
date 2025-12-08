@@ -575,7 +575,7 @@ meta.textContent = "المؤلف: " + book.author;
       `.trim();
 
       try {
-        const response = await fetch("/api/summrize", {
+        const response = await fetch("/api/summarize", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -612,4 +612,5 @@ meta.textContent = "المؤلف: " + book.author;
 </body>
 
 </html>
+
 
