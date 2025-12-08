@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>سفيرة القراءة الذكية - ترشيح كتب بالذكاء الاصطناعي</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Tahoma", system-ui, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #1f2937, #020617);
+      color: #e5e7eb;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 900px;
+      padding: 24px 16px 40px;
+    }
+
+    .card {
+      background: linear-gradient(135deg, #020617, #0b1120);
+      border-radius: 18px;
+      padding: 20px 18px 18px;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    /* حاوية الشعار مع جلو بيج */
+    .logo-wrapper {
+      width: 170px;
+      height: 170px;
+      margin: 0 auto 8px auto;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #fdf4e3, #e2c9a5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow:
+        0 0 35px rgba(244, 220, 188, 0.95),
+        0 0 80px rgba(248, 231, 210, 0.6);
+      position: relative;
+    }
+
+    .logo-wrapper::before {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(120, 85, 51, 0.15);
+    }
+
+    .main-logo {
+      max-width: 75%;
+      max-height: 75%;
+      display: block;
+      filter: drop-shadow(0 0 12px rgba(120, 85, 51, 0.35));
+    }
+
+    h1 {
+      margin: 6px 0 2px;
+      font-size: 24px;
+      color: #f9fafb;
+      letter-spacing: 1px;
+    }
+
+    .author-name {
+      margin: 2px 0 0;
+      font-size: 16px;
+      color: #facc15; /* ذهبي ناعم */
+      font-weight: 600;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      font-size: 14px;
+      color: #a5b4fc;
+      font-weight: 500;
+    }
+
+    .quote {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #cbd5f5;
+      opacity: 0.9;
+    }
+
+    .quote span {
+      color: #22d3ee;
+      font-weight: 600;
+    }
+
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .field {
+      flex: 1 1 140px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 13px;
+      color: #e5e7eb;
+    }
+
+    label {
+      opacity: 0.85;
+    }
+
+    select,
+    input {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.8);
+      color: #e5e7eb;
+      outline: none;
+    }
+
+    select:focus,
+    input:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.6);
+    }
+
+    .btn-row {
+      margin-top: 16px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 9px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5, #22d3ee);
+      color: #0b1120;
+      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.45);
+    }
+
+    .btn-secondary {
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+    }
+
+    .btn-mini {
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      padding-inline: 10px;
+      font-size: 11px;
+    }
+
+    .results {
+      margin-top: 22px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .result-title {
+      font-size: 14px;
+      color: #a5b4fc;
+      opacity: 0.9;
+    }
+
+    .book-card {
+      border-radius: 14px;
+      padding: 12px 12px 8px;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.15), rgba(15, 23, 42, 1));
+      border: 1px solid rgba(79, 70, 229, 0.5);
+    }
+
+    .book-tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 4px;
+      font-size: 11px;
+    }
+
+    .tag {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      color: #e5e7eb;
+    }
+
+    .book-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: #f9fafb;
+      margin-bottom: 3px;
+    }
+
+    .book-meta {
+      font-size: 11px;
+      color: #cbd5f5;
+      margin-bottom: 4px;
+    }
+
+    .book-summary {
+      font-size: 12px;
+      color: #e5e7eb;
+      opacity: 0.9;
+      margin-bottom: 6px;
+    }
+
+    .book-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .helper {
+      margin-top: 10px;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .helper span {
+      color: #22d3ee;
+    }
+
+    .api-note {
+      margin-top: 4px;
+      font-size: 10px;
+      color: #fbbf24;
+    }
+
+    .footer-sign {
+      margin-top: 12px;
+      font-size: 11px;
+      text-align: left;
+      color: #9ca3af;
+      opacity: 0.95;
+    }
+
+    @media (max-width: 600px) {
+      .card {
+        padding: 16px 12px 14px;
+      }
+      h1 {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="card">
+      <div class="header">
+
+        <!-- شعار كبير مع جلو بيج -->
+        <div class="logo-wrapper">
+          <!-- غيّري logo.png لاسم ملف الشعار عندك -->
+          <img src="logo.png" alt="شعار هيّا بوغيث" class="main-logo">
+        </div>
+
+        <h1>سفيرة القراءة الذكية</h1>
+        <div class="author-name">هيّا بوغيث</div>
+        <div class="subtitle">ترشيح كتب بالذكاء الاصطناعي للمرحلة الثانوية</div>
+
+        <p class="quote">
+          «كتابٌ واحدٌ قد يغيّر عامًا كاملًا من حياتك؛ 
+          <span>اختاريه بذكاء</span> بمساعدة الذكاء الاصطناعي.»
+        </p>
+      </div>
+
+      <!-- نموذج إدخال بيانات الطالبة -->
+      <div class="form-row">
+        <div class="field">
+          <label for="grade">الصف الدراسي</label>
+          <select id="grade">
+            <option value="">اختاري الصف</option>
+            <option value="10">العاشر</option>
+            <option value="11">الحادي عشر</option>
+            <option value="12">الثاني عشر</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="type">نوع الكتاب</label>
+          <select id="type">
+            <option value="">اختاري النوع</option>
+            <option value="رواية">رواية أدبية</option>
+            <option value="تطوير ذات">تطوير ذات ومهارات</option>
+            <option value="علمي">علمي مبسّط</option>
+            <option value="سيرة">سيرة ذاتية / ملهمة</option>
+            <option value="ديني">ديني / قيَمي</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="topic">عن ماذا تحبين أن تقرئين؟ (اختياري)</label>
+          <input id="topic" type="text" placeholder="مثال: تنظيم الوقت، الصداقة، المستقبل..." />
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-primary" onclick="smartRecommend()">
+          🔍 الترشيح الذكي المحلي
+        </button>
+        <button class="btn-secondary" onclick="clearResults()">
+          ✨ إعادة ضبط
+        </button>
+      </div>
+
+      <div class="results" id="results">
+        <div class="result-title">ستظهر هنا ثلاثة ترشيحات مخصّصة لكِ بالذكاء الاصطناعي…</div>
+      </div>
+
+      <p class="helper">
+        يعمل هذا الموقع <span>محليًّا</span> على جهازك كملف HTML واحد.  
+        أزرار <strong>تلخيص GPT</strong> تحتاج إنترنت ومفتاح OpenAI.
+      </p>
+      <p class="api-note">
+        ⚠️ لا تضعي مفتاح OpenAI في ملف منشور على الإنترنت أو مشارك مع الآخرين.
+      </p>
+
+      <p class="footer-sign">
+        معلمة اللغة العربية · هيّا بوغيث
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // 🔑 ضعي مفتاح OpenAI الخاص بك هنا (يبقى في جهازك فقط)
+    // إذا تركتيه فارغًا، زر GPT لن يعمل.
+
+    // قاعدة بيانات بسيطة للكتب (يمكنكِ تعديلها وإضافة كتب أخرى)
+    const books = [
+      {
+        title: "رجال في الشمس",
+        author: "غسان كنفاني",
+        type: "رواية",
+        grades: ["11", "12"],
+        summary: "رواية قصيرة تسلط الضوء على ضياع الأحلام والبحث عن فرصة أفضل، بأسلوب سهل وواقعي.",
+      },
+      {
+        title: "عساكر قوس قزح",
+        author: "أندريا هيراتا",
+        type: "رواية",
+        grades: ["10", "11", "12"],
+        summary: "قصة طلاب مدرسة فقيرة يرسمون أحلامًا كبيرة، تحفّز على الإصرار وحب العلم.",
+      },
+      {
+        title: "قوة العادات",
+        author: "تشارلز دهيغ",
+        type: "تطوير ذات",
+        grades: ["11", "12"],
+        summary: "كتاب يشرح كيف تتكوّن عاداتنا وكيف نغيّرها لنطوّر أنفسنا بخطوات بسيطة.",
+      },
+      {
+        title: "الطالب العبقري",
+        author: "د. فهد التويجري",
+        type: "تطوير ذات",
+        grades: ["10", "11", "12"],
+        summary: "دليل عملي لطالبة الثانوية لتنظيم وقتها ورفع تحصيلها الدراسي.",
+      },
+      {
+        title: "قصة الفيزياء",
+        author: "جيم الخليلي",
+        type: "علمي",
+        grades: ["11", "12"],
+        summary: "كتاب يروي تطور علم الفيزياء بأسلوب قصصي ممتع بعيد عن التعقيد.",
+      },
+      {
+        title: "العلم في حياتنا",
+        author: "مجموعة مؤلفين",
+        type: "علمي",
+        grades: ["10", "11"],
+        summary: "يقدم تجارب وأمثلة بسيطة توضح كيف يدخل العلم في تفاصيل يومنا.",
+      },
+      {
+        title: "رجال حول الرسول",
+        author: "خالد محمد خالد",
+        type: "ديني",
+        grades: ["10", "11", "12"],
+        summary: "قصص صحابة ملهمة تعزز قيم الشجاعة والصبر والإيمان في حياة الطالبة.",
+      },
+      {
+        title: "لا تحزن",
+        author: "عائض القرني",
+        type: "ديني",
+        grades: ["10", "11", "12"],
+        summary: "كتاب يبعث الأمل والطمأنينة برسائل قصيرة ولطيفة للقلب.",
+      },
+      {
+        title: "أنا ملهمة",
+        author: "مجموعة مؤلفين",
+        type: "سيرة",
+        grades: ["10", "11", "12"],
+        summary: "سِيَر قصيرة لنساء ملهمات يروين كيف واجهن التحديات وحققن أحلامهن.",
+      },
+      {
+        title: "ستيف جوبز",
+        author: "والتر آيزكسون (مبسط)",
+        type: "سيرة",
+        grades: ["11", "12"],
+        summary: "سيرة ملهمة لمؤسس آبل، تبرز قوة الشغف والخيال في صناعة المستقبل.",
+      },
+    ];
+
+    function smartRecommend() {
+      const grade = document.getElementById("grade").value;
+      const type = document.getElementById("type").value;
+      const topic = document.getElementById("topic").value.trim();
+
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML = "";
+
+      if (!grade || !type) {
+        resultsDiv.innerHTML =
+          '<div class="result-title" style="color:#fca5a5;">الرجاء اختيار الصف الدراسي ونوع الكتاب أولاً ✋</div>';
+        return;
+      }
+
+      // 1) فلترة الكتب حسب الصف والنوع
+      let filtered = books.filter(
+        (b) => b.type === type && b.grades.includes(grade)
+      );
+
+      // 2) إذا في موضوع مكتوب، نفضّل الكتب التي يناسبها الموضوع
+      if (topic) {
+        const topicLower = topic.toLowerCase();
+        const topicMatches = filtered.filter(
+          (b) =>
+            b.title.toLowerCase().includes(topicLower) ||
+            b.summary.toLowerCase().includes(topicLower)
+        );
+        if (topicMatches.length > 0) {
+          filtered = topicMatches;
+        }
+      }
+
+      // 3) إذا ما لقينا كتب كافية، نوسع البحث على نفس النوع لجميع الصفوف
+      if (filtered.length < 3) {
+        const more = books.filter(
+          (b) => b.type === type && !filtered.includes(b)
+        );
+        filtered = filtered.concat(more);
+      }
+
+      // 4) إذا ما زالت أقل من 3، نكمل بأي كتب مناسبة للصف
+      if (filtered.length < 3) {
+        const extra = books.filter(
+          (b) => b.grades.includes(grade) && !filtered.includes(b)
+        );
+        filtered = filtered.concat(extra);
+      }
+
+      // 5) أخذ أول 3 فقط
+      const top3 = filtered.slice(0, 3);
+
+      if (top3.length === 0) {
+        resultsDiv.innerHTML =
+          '<div class="result-title">لم نجد ترشيحات مناسبة… جرّبي تغيير النوع أو الصف.</div>';
+        return;
+      }
+
+      const intro = document.createElement("div");
+      intro.className = "result-title";
+      intro.textContent = "٣ ترشيحات ذكية مخصّصة لكِ:";
+      resultsDiv.appendChild(intro);
+
+      top3.forEach((book, idx) => {
+        const card = document.createElement("div");
+        card.className = "book-card";
+
+        const tags = document.createElement("div");
+        tags.className = "book-tag-row";
+        tags.innerHTML = `
+          <span class="tag">ترشيح ${idx + 1}</span>
+          <span class="tag">الصف: ${grade}</span>
+          <span class="tag">نوع الكتاب: ${book.type}</span>
+        `;
+
+        const name = document.createElement("div");
+name.className = "book-name";
+name.textContent = book.title;
+
+const meta = document.createElement("div");
+meta.className = "book-meta";
+meta.textContent = "المؤلف: " + book.author;
+
+        const summary = document.createElement("div");
+        summary.className = "book-summary";
+        summary.textContent = book.summary;
+
+        const actions = document.createElement("div");
+        actions.className = "book-actions";
+
+        const googleBtn = document.createElement("button");
+        googleBtn.className = "btn-mini";
+        googleBtn.textContent = "🔎 بحث Google عن الكتاب";
+        googleBtn.onclick = () => {
+          const q = encodeURIComponent(book.title + " " + book.author);
+          window.open("https://www.google.com/search?q=" + q, "_blank");
+        };
+
+        const gptBtn = document.createElement("button");
+        gptBtn.className = "btn-mini";
+        gptBtn.textContent = "🤖 تلخيص أذكى من GPT";
+        gptBtn.onclick = () => summarizeWithGPT(book, summary, gptBtn);
+
+        actions.appendChild(googleBtn);
+        actions.appendChild(gptBtn);
+
+        card.appendChild(tags);
+        card.appendChild(name);
+        card.appendChild(meta);
+        card.appendChild(summary);
+        card.appendChild(actions);
+        resultsDiv.appendChild(card);
+      });
+    }
+
+    function clearResults() {
+      document.getElementById("grade").value = "";
+      document.getElementById("type").value = "";
+      document.getElementById("topic").value = "";
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML =
+        '<div class="result-title">ستظهر هنا ثلاثة ترشيحات مخصّصة لكِ بالذكاء الاصطناعي…</div>';
+    }
+
+    async function summarizeWithGPT(book, summaryDiv, buttonEl) {
+      if (!OPENAI_API_KEY) {
+        alert("ضعي مفتاح OpenAI في الكود أولاً عند السطر الذي يحتوي OPENAI_API_KEY.");
+        return;
+      }
+
+      const originalText = buttonEl.textContent;
+      buttonEl.textContent = "⏳ جاري توليد التلخيص...";
+      buttonEl.disabled = true;
+
+      const prompt = `
+أنت مساعد أمين مكتبة لمرحلة الثانوية.
+أريد منك تلخيص كتاب للطالبات بعبارات عربية سهلة جدًا، في ٣ إلى ٤ جمل كحد أقصى.
+
+البيانات:
+العنوان: ${book.title}
+المؤلف: ${book.author}
+النوع: ${book.type}
+
+اكتب التلخيص مباشرة بدون عناوين إضافية ولا فواصل زخرفية.
+      `.trim();
+
+      try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + OPENAI_API_KEY,
+          },
+          body: JSON.stringify({
+            model: "gpt-4.1-mini",
+            messages: [
+              { role: "system", content: "أنت معلّم لغة عربية يشرح للطالبات بلغة مبسطة ومختصرة." },
+              { role: "user", content: prompt }
+            ],
+            temperature: 0.4,
+            max_tokens: 220
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          console.error(data);
+          alert("حدث خطأ في الاتصال بـ GPT. تحققي من المفتاح أو الاتصال بالإنترنت.");
+        } else {
+          const text = data.choices[0].message.content.trim();
+          summaryDiv.textContent = text;
+        }
+      } catch (err) {
+        console.error(err);
+        alert("تعذّر الوصول إلى GPT. تأكدي من الاتصال بالإنترنت.");
+      } finally {
+        buttonEl.textContent = originalText;
+        buttonEl.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
