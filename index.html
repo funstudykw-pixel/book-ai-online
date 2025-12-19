@@ -555,22 +555,28 @@ meta.textContent = "المؤلف: " + book.author;
         '<div class="result-title">ستظهر هنا ثلاثة ترشيحات مخصّصة لكِ بالذكاء الاصطناعي…</div>';
     }
 
-async function summarizeWithGPT(book) {
-  const buttonEl = document.getElementById("summarizeBtn");      // إذا اسم زرّج غير، لا تغيّرينه
-  const summaryDiv = document.getElementById("summaryResult");   // إذا اسم الديف غير، لا تغيّرينه
+async function summarizeWithGPT(book, summaryDiv, buttonEl) {
+  // حماية من null (عشان ما يطيح)
+  if (!summaryDiv || !buttonEl) {
+    console.error("ملف التلخيص: لم يتم العثور على زر التلخيص أو مكان عرض الملخص.");
+    return;
+  }
 
   const originalText = buttonEl.textContent;
-  buttonEl.textContent = "⏳...جاري توليد التلخيص";
+  buttonEl.textContent = "⏳ جاري توليد التلخيص...";
   buttonEl.disabled = true;
 
-  // نفس برومبتج/نصج اللي فوق، لا أغيره
+  const title = (book?.title || "").trim() || "غير محدد";
+  const author = (book?.author || "").trim() || "غير محدد";
+  const type = (book?.type || "").trim() || "غير محدد";
+
   const prompt = `
 أنت مساعد أمين لمكتبة للمرحلة الثانوية.
 أريد منك تلخيص كتاب للطالبات بعبارات عربية سهلة جداً في ٣ إلى ٤ جمل.
 البيانات:
-العنوان: ${book?.title || ""}
-المؤلف: ${book?.author || ""}
-النوع: ${book?.type || ""}
+العنوان: ${title}
+المؤلف: ${author}
+النوع: ${type}
 
 اكتب التلخيص مباشرة بدون عناوين اضافية ولا فواصل زخرفية.
 `.trim();
@@ -581,8 +587,8 @@ async function summarizeWithGPT(book) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         text: prompt,
-        title: (book?.title || "").trim(),
-        author: (book?.author || "").trim()
+        title: title,
+        author: author
       })
     });
 
@@ -594,8 +600,8 @@ async function summarizeWithGPT(book) {
       return;
     }
 
-    // ✅ هذا هو الصح مع API اللي يرجع { summary: ... }
-    summaryDiv.textContent = (data.summary || "").trim();
+    // ✅ الصحيح مع API اللي يرجع { summary: ... }
+    summaryDiv.textContent = (data.summary || "").trim() || "لم يتم توليد ملخص.";
 
   } catch (err) {
     console.error(err);
@@ -603,6 +609,8 @@ async function summarizeWithGPT(book) {
   } finally {
     buttonEl.textContent = originalText;
     buttonEl.disabled = false;
+  
+
   
 }      
     }
