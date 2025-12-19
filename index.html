@@ -7,7 +7,6 @@
     * {
       box-sizing: border-box;
       font-family: "Tahoma", system-ui, sans-serif;
-   
     }
 
     body {
@@ -556,65 +555,57 @@ meta.textContent = "المؤلف: " + book.author;
         '<div class="result-title">ستظهر هنا ثلاثة ترشيحات مخصّصة لكِ بالذكاء الاصطناعي…</div>';
     }
 
-    async function summarizeWithGPT(book, summaryDiv, buttonEl) {
+async function summarizeWithGPT(book) {
+  const buttonEl = document.getElementById("summarizeBtn");      // إذا اسم زرّج غير، لا تغيّرينه
+  const summaryDiv = document.getElementById("summaryResult");   // إذا اسم الديف غير، لا تغيّرينه
 
+  const originalText = buttonEl.textContent;
+  buttonEl.textContent = "⏳...جاري توليد التلخيص";
+  buttonEl.disabled = true;
 
-      const originalText = buttonEl.textContent;
-      buttonEl.textContent = "⏳ جاري توليد التلخيص...";
-      buttonEl.disabled = true;
-
-      const prompt = `
-أنت مساعد أمين مكتبة لمرحلة الثانوية.
-أريد منك تلخيص كتاب للطالبات بعبارات عربية سهلة جدًا، في ٣ إلى ٤ جمل كحد أقصى.
-
+  // نفس برومبتج/نصج اللي فوق، لا أغيره
+  const prompt = `
+أنت مساعد أمين لمكتبة للمرحلة الثانوية.
+أريد منك تلخيص كتاب للطالبات بعبارات عربية سهلة جداً في ٣ إلى ٤ جمل.
 البيانات:
-العنوان: ${book.title}
-المؤلف: ${book.author}
-النوع: ${book.type}
+العنوان: ${book?.title || ""}
+المؤلف: ${book?.author || ""}
+النوع: ${book?.type || ""}
 
-اكتب التلخيص مباشرة بدون عناوين إضافية ولا فواصل زخرفية.
-      `.trim();
+اكتب التلخيص مباشرة بدون عناوين اضافية ولا فواصل زخرفية.
+`.trim();
 
-      try {
-        const response = await fetch("/api/summarize", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "gpt-4.1-mini",
-            messages: [
-              { role: "system", content: "أنت معلّم لغة عربية يشرح للطالبات بلغة مبسطة ومختصرة." },
-              { role: "user", content: prompt }
-            ],
-            temperature: 0.4,
-            max_tokens: 220
-          })
-        });
+  try {
+    const response = await fetch("/api/summarize", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text: prompt,
+        title: (book?.title || "").trim(),
+        author: (book?.author || "").trim()
+      })
+    });
 
-        const data = await response.json();
+    const data = await response.json();
 
-       if (!response.ok) {
-    console.error(data);
-    alert("فشل في الاتصال بالذكاء الاصطناعي. تأكدي من الإعدادات.");
-    return;
-} else {
-    const text = data.summary;
-    summaryDiv.textContent = text;
-}
-      } catch (err) {
-        console.error(err);
-        alert("تعذّر الوصول إلى GPT. تأكدي من الاتصال بالإنترنت.");
-      } finally {
-        buttonEl.textContent = originalText;
-        buttonEl.disabled = false;
-      }
+    if (!response.ok) {
+      console.error(data);
+      alert(data?.error || "صار خطأ بالتلخيص");
+      return;
+    }
+
+    // ✅ هذا هو الصح مع API اللي يرجع { summary: ... }
+    summaryDiv.textContent = (data.summary || "").trim();
+
+  } catch (err) {
+    console.error(err);
+    alert("تعذر الاتصال. تأكدي من الإنترنت وإعدادات Vercel.");
+  } finally {
+    buttonEl.textContent = originalText;
+    buttonEl.disabled = false;
+  
+}      
     }
   </script>
 </body>
-
 </html>
-
-
-
-
